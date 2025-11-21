@@ -64,15 +64,31 @@ const Index = () => {
         const alerts = analyzeWeatherAlerts(weather);
         setWeatherAlerts(alerts);
         
-        // Reverse geocode to get location name
-        const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?latitude=${location.lat}&longitude=${location.lon}&count=1`;
-        const geocodeResponse = await fetch(geocodeUrl);
-        if (geocodeResponse.ok) {
-          const geocodeData = await geocodeResponse.json();
-          if (geocodeData.results && geocodeData.results.length > 0) {
-            const result = geocodeData.results[0];
-            setLocationName(`${result.name}, ${result.country}`);
+        // Reverse geocode to get location name using Nominatim
+        try {
+          const reverseGeocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lon}&zoom=10&addressdetails=1`;
+          const reverseResponse = await fetch(reverseGeocodeUrl, {
+            headers: {
+              'User-Agent': 'WeatherDashboard/1.0'
+            }
+          });
+          if (reverseResponse.ok) {
+            const reverseData = await reverseResponse.json();
+            const address = reverseData.address;
+            const city = address.city || address.town || address.village || address.county || address.state;
+            const country = address.country;
+            if (city && country) {
+              setLocationName(`${city}, ${country}`);
+            } else if (reverseData.display_name) {
+              // Fallback to display name if city/country not available
+              const parts = reverseData.display_name.split(',');
+              setLocationName(parts.slice(0, 2).join(','));
+            }
           }
+        } catch (reverseError) {
+          console.error('Reverse geocoding failed:', reverseError);
+          // Set a fallback location name with coordinates
+          setLocationName(`Location (${location.lat.toFixed(2)}°, ${location.lon.toFixed(2)}°)`);
         }
       } catch (error) {
         toast({
@@ -90,17 +106,20 @@ const Index = () => {
 
   // Try to get user's location on mount
   useEffect(() => {
-    getUserLocation()
-      .then((loc) => {
+    const detectLocation = async () => {
+      try {
+        const loc = await getUserLocation();
         setLocation(loc);
         toast({
           title: "Location detected",
           description: "Showing weather for your current location",
         });
-      })
-      .catch(() => {
+      } catch (error) {
         // Silently fail and use default location (Hyderabad)
-      });
+        console.log('Failed to detect location, using default');
+      }
+    };
+    detectLocation();
   }, [toast]);
 
   const handleSearch = async (cityName: string) => {

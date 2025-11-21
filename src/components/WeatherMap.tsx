@@ -33,13 +33,23 @@ const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lon: number
 export const WeatherMap = ({ center, onMapClick }: WeatherMapProps) => {
   return (
     <div className="h-full w-full rounded-lg overflow-hidden">
-      <MapContainer center={center} zoom={10} scrollWheelZoom={true} className="h-full w-full">
+      <MapContainer 
+        center={center} 
+        zoom={13} 
+        scrollWheelZoom={true} 
+        className="h-full w-full"
+        key={`${center[0]}-${center[1]}`}
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Marker position={center}>
-          <Popup>Selected Location</Popup>
+          <Popup>
+            Selected Location
+            <br />
+            {center[0].toFixed(4)}°, {center[1].toFixed(4)}°
+          </Popup>
         </Marker>
         <MapClickHandler onMapClick={onMapClick} />
       </MapContainer>
