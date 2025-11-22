@@ -29,7 +29,11 @@ interface WeatherMapAdvancedProps {
 const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lon: number) => void }) => {
   useMapEvents({
     click: (e) => {
-      onMapClick(e.latlng.lat, e.latlng.lng);
+      // Normalize longitude to -180 to 180 range
+      let lon = e.latlng.lng;
+      while (lon > 180) lon -= 360;
+      while (lon < -180) lon += 360;
+      onMapClick(e.latlng.lat, lon);
     },
   });
   return null;
@@ -83,7 +87,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
             {/* Open-Meteo Weather Layers */}
             <LayersControl.Overlay name="Temperature">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/temp/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/temp/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
@@ -91,7 +95,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
 
             <LayersControl.Overlay name="Precipitation">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/precipitation/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/precipitation/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
@@ -99,7 +103,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
 
             <LayersControl.Overlay name="Wind Speed">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/wind/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/wind/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
@@ -107,7 +111,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
 
             <LayersControl.Overlay name="Clouds">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/cloudcover/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/cloudcover/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
@@ -115,7 +119,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
 
             <LayersControl.Overlay name="Humidity">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/humidity/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/humidity/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
@@ -123,7 +127,7 @@ export const WeatherMapAdvanced = ({ center, onMapClick }: WeatherMapAdvancedPro
 
             <LayersControl.Overlay name="Pressure">
               <TileLayer
-                url={`https://tile.open-meteo.com/v1/pressure/{z}/{x}/{y}.png`}
+                url={`https://maps.open-meteo.com/v1/pressure/{z}/{x}/{y}.png`}
                 opacity={opacity}
                 attribution="Open-Meteo"
               />
