@@ -24,7 +24,11 @@ interface WeatherMapProps {
 const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lon: number) => void }) => {
   useMapEvents({
     click: (e) => {
-      onMapClick(e.latlng.lat, e.latlng.lng);
+      // Normalize longitude to -180 to 180 range
+      let lon = e.latlng.lng;
+      while (lon > 180) lon -= 360;
+      while (lon < -180) lon += 360;
+      onMapClick(e.latlng.lat, lon);
     },
   });
   return null;
